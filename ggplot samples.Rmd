@@ -37,7 +37,7 @@ yoq <- yoq_pre %>%
 ```{r }
 ## Line Graph of Averages 
 # Data in wide format
-yoq %>% 
+linegraph <- yoq %>% 
   drop_na(c(TOTAL, timePoint)) %>% 
      # remove rows with NA's
   ggplot(aes(color = surveyID)) + 
@@ -67,10 +67,11 @@ yoq %>%
      # Add dashed line to represent the clinical cutoff
   scale_x_discrete(labels = c("Intake", "Discharge", "6 Months Post", "1 Year Post")) + 
      # Change x-axis variable names
-  annotate("text", x = 1, y = 45.5, label = "Clinical Cutoff", size = 2.5) 
-     # Add indicator for clinical cutoff
+  annotate("text", x = 1, y = 45.5, label = "Clinical Cutoff", size = 2.5)  # Add indicator for clinical cutoff
 
 
+# Print
+linegraph
 ```
 
 
@@ -78,7 +79,7 @@ yoq %>%
 
 ```{r}
 # Boxplot from data in long format
-yoq %>% 
+boxplot <- yoq %>% 
   na.omit() %>% 
   ggplot(aes(timePoint, TOTAL, fill = surveyID)) + 
   geom_boxplot() +
@@ -98,9 +99,9 @@ yoq %>%
      # Change x-axis variable names
   annotate("text", x = .55, y = 37, label = "Clinical\nCutoff", size = 2.5) +
      # Add indicator for clinical cutoff
-  scale_y_continuous(limits = c(0,200))
-     # Change cutoff to remove 1 outlier and make graph more readable
+  scale_y_continuous(limits = c(0,200)) # Change cutoff to remove 1 outlier and make graph more readable
 
-
+# Print
+boxplot
 ```
 
