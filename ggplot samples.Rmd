@@ -1,0 +1,106 @@
+---
+title: "ggplot examples"
+author: "Cullom Cahill"
+date: "4/29/2022"
+output: html_document
+---
+
+```{r datasetup}
+# Load required Libraries
+library(tidyverse)
+
+# Load the data via Direct path
+yoq_pre <- read.csv("C:/Users/cullo/OneDrive/Desktop/One Cloud/ELEMENTS/YOQ/data/YOQ paired down Master.csv")
+
+# Rename DOD - we will use DOD as another field shortly
+yoq_pre$discharge <- yoq_pre$DOD
+
+# Add TimePoint Field
+yoq <- yoq_pre %>%
+  # Convert the raw complete_sinceDOD number into bins
+  mutate(timePoint = case_when(complete_sinceDOD <= -15 ~ "DOA", 
+                               # Day of Admission
+                               complete_sinceDOD > -15 & complete_sinceDOD <= 40 ~ "DOD", 
+                               # Day of Discharge
+                               complete_sinceDOD > 15 & complete_sinceDOD <= 270 ~ "MO6",
+                               # 6 Months Post Discharge
+                               complete_sinceDOD > 270 ~ "YR1")) %>% 
+                               # 1 Year Post Discharge
+  # Select the columns we will be using
+  select(clientName, otClientId, surveyID, assignedToName, 
+         assignedToRelationship, currentClientProvider, 
+         DOB, DOD, TOTAL, timePoint, discharge)
+
+```
+
+## Line Graph of Averages
+```{r }
+## Line Graph of Averages 
+# Data in wide format
+yoq %>% 
+  drop_na(c(TOTAL, timePoint)) %>% 
+     # remove rows with NA's
+  ggplot(aes(color = surveyID)) + 
+     # split out the rest of this plot by surveyID
+  stat_summary(aes(x=timePoint, y=TOTAL, group = surveyID), 
+               fun = mean, geom = "point") + 
+                 # add points of the mean of each score at each timepoint
+  stat_summary(aes(x=timePoint, y=TOTAL, group = surveyID), 
+               fun = mean, geom = "line") + 
+                 # Add line to connect these mean points
+  theme_minimal() + 
+      # remove grey background
+  labs(title = "Impact of OBH on Mental Health Functioning", # Add chart title
+       subtitle = "Linegraph",
+       x = "Time Instance", # Change x-axis label
+       y = "Y-OQ Score") +  # Y-axis label
+  scale_color_manual(name = "Surveyed Individual",  
+                         # remove legend title
+                     labels = c("Parent", "Self"), 
+                         # Change legend labels
+                     values = c("#999999", "#0072B2")) + 
+                         # Change line colors
+  theme(legend.position = c(.75, .8),
+        legend.background = element_rect(fill = "white", size = .75)) +
+     # Add box around legend
+  geom_hline(yintercept = 47, linetype=3)  + 
+     # Add dashed line to represent the clinical cutoff
+  scale_x_discrete(labels = c("Intake", "Discharge", "6 Months Post", "1 Year Post")) + 
+     # Change x-axis variable names
+  annotate("text", x = 1, y = 45.5, label = "Clinical Cutoff", size = 2.5) 
+     # Add indicator for clinical cutoff
+
+
+```
+
+
+## BoxPlots
+
+```{r}
+# Boxplot from data in long format
+yoq %>% 
+  na.omit() %>% 
+  ggplot(aes(timePoint, TOTAL, fill = surveyID)) + 
+  geom_boxplot() +
+  theme_minimal() +
+  scale_fill_manual(name = "Surveyed Individual",
+                    labels = c("Parent", "Client"),
+                    values = c("#999999", "#0072B2")) +
+  theme(legend.position = c(.85,.9),
+        legend.background = element_rect(fill = "white", size = .5))+ 
+  labs(title = "Impact of OBH on Mental Health Functioning", # Add chart title
+       subtitle = "Boxplots",
+       x = "Time Instance", # Change x-axis label
+       y = "Y-OQ Score") +  # Y-axis label
+  geom_hline(yintercept = 47, linetype=3)  + 
+     # Add dashed line to represent the clinical cutoff
+  scale_x_discrete(labels = c("Intake", "Discharge", "6 Months Post", "1 Year Post")) + 
+     # Change x-axis variable names
+  annotate("text", x = .55, y = 37, label = "Clinical\nCutoff", size = 2.5) +
+     # Add indicator for clinical cutoff
+  scale_y_continuous(limits = c(0,200))
+     # Change cutoff to remove 1 outlier and make graph more readable
+
+
+```
+
