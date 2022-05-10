@@ -5,10 +5,21 @@ date: "4/29/2022"
 output: html_document
 ---
 
-```{r datasetup}
+---
+
+R Markdown file to showcase use of ggplot in data visualization.  
+Data source: wilderness therapy outcomes data.  
+Data setup code available on GitHub: Code_samples/ggplot samples.Rmd  
+    
+```{r library_setup, include=FALSE}
 # Load required Libraries
 library(tidyverse)
+```
 
+---
+
+
+```{r data_setup, include=FALSE}
 # Load the data via Direct path
 yoq_pre <- read.csv("C:/Users/cullo/OneDrive/Desktop/One Cloud/ELEMENTS/YOQ/data/YOQ paired down Master.csv")
 
@@ -34,7 +45,7 @@ yoq <- yoq_pre %>%
 ```
 
 ## Line Graph of Averages
-```{r }
+```{r plot1_line graph}
 ## Line Graph of Averages 
 # Data in wide format
 linegraph <- yoq %>% 
@@ -76,9 +87,11 @@ linegraph
 ```
 
 
+---
+
 ## BoxPlots
 
-```{r}
+```{r plot2_boxplot, warning=FALSE}
 # Boxplot from data in long format
 boxplot <- yoq %>% 
   na.omit() %>% 
